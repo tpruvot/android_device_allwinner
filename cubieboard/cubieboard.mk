@@ -43,8 +43,9 @@ PRODUCT_COPY_FILES += \
 	device/allwinner/cubieboard/vold.fstab:system/etc/vold.fstab
 
 PRODUCT_PACKAGES += \
-		gatord \
-        TvdLauncher
+	busybox \
+	gatord \
+	TvdLauncher
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	persist.sys.usb.config=mass_storage,adb \
