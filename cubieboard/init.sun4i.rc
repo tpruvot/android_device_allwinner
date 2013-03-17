@@ -39,6 +39,9 @@ on fs
 	mkdir /mnt/private 0000 system system
 	mount vfat /dev/block/nandi /mnt/private
 
+	# debugfs (linked to /d)
+	mount debugfs debugfs /sys/kernel/debug
+
 on boot
 	insmod /system/lib/modules/ump.ko
 	insmod /system/lib/modules/mali.ko
