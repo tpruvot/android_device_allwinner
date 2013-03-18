@@ -40,8 +40,12 @@ static struct light_state_t g_battery;
 static int g_backlight = 14;
 static int g_haveTrackballLight = 0;
 
+char const*const GREEN_LED_FILE = "/sys/class/leds/green/brightness";
+char const*const BLUE_LED_FILE = "/sys/class/leds/blue/brightness";
+char const*const RED_LED_FILE = "/sys/class/leds/red/brightness";
+
 /* Only one instance is created per platform */
-struct light_context_t 
+struct light_context_t
 {
     struct light_device_t     device;
     /* our private state goes below here */
@@ -58,6 +62,28 @@ void init_globals(void)
 }
 
 static int
+write_int(char const* path, int value)
+{
+    int fd;
+    static int already_warned = 0;
+
+    fd = open(path, O_RDWR);
+    if (fd >= 0) {
+        char buffer[20];
+        int bytes = sprintf(buffer, "%d\n", value);
+        int amt = write(fd, buffer, bytes);
+        close(fd);
+        return amt == -1 ? -errno : 0;
+    } else {
+        if (already_warned == 0) {
+            LOGE("write_int failed to open %s\n", path);
+            already_warned = 1;
+        }
+        return -errno;
+    }
+}
+
+static int
 is_lit(struct light_state_t const* state)
 {
     return state->color & 0x00ffffff;
@@ -66,20 +92,11 @@ is_lit(struct light_state_t const* state)
 static int
 rgb_to_brightness(struct light_state_t const* state)
 {
-    int color = state->color & 0x00ffffff;
-    int bright;
-    
-    bright = ((77*((color>>16)&0x00ff)) + (150*((color>>8)&0x00ff)) + (29*(color&0x00ff))) >> 8;
+    int red = (state->color >> 16) & 0xff;
+    int green = (state->color >> 8) & 0xff;
+    int blue = state->color & 0xff;
 
-    //support backlight 0-255
-//    bright = bright >> 4;
-
-
-	/* fix bright value >=5 , for HW reason*/
-	if(bright < 5)
-		bright = 5;
-
-    return bright;
+    return ((77 * red) + (150 * green) + (29 * blue)) >> 8;
 }
 
 static int
@@ -89,26 +106,23 @@ set_light_backlight(struct light_device_t* dev,
     struct light_context_t      *ctx;
 
     int err = 0;
-
     int brightness = rgb_to_brightness(state);
-	
-    pthread_mutex_lock(&g_lock);	
-    g_backlight = brightness;
-    ctx = (struct light_context_t *)dev;
     unsigned long  args[3];
 
-	args[0]  = 0;
-	args[1]  = brightness;
-	args[2]  = 0;
-	err = ioctl(ctx->fd,DISP_CMD_LCD_SET_BRIGHTNESS,args);
-	
-	if(err == 0)
-	{
-		g_backlight = brightness;
-	}
+    pthread_mutex_lock(&g_lock);
+    g_backlight = brightness;
+    ctx = (struct light_context_t *)dev;
+
+    args[0]  = 0;
+    args[1]  = brightness;
+    args[2]  = 0;
+    err = ioctl(ctx->fd, DISP_CMD_LCD_SET_BRIGHTNESS, args);
+    if (err == 0) {
+        g_backlight = brightness;
+    }
 
     pthread_mutex_unlock(&g_lock);
-    
+
     return err;
 }
 
@@ -137,14 +151,30 @@ static int
 set_light_notifications(struct light_device_t* dev,
         struct light_state_t const* state)
 {
-    return 0;
+    int err = 0;
+    int green = (state->color >> 8) & 0xff;
+    int blue = state->color & 0xff;
+#ifdef HAVE_RED_LED
+    int red = (state->color >> 16) & 0xff;
+    err = write_int(RED_LED_FILE, (red != 0) ? 255 : 0);
+#endif
+    err = write_int(GREEN_LED_FILE, (green != 0) ? 255 : 0);
+#ifndef LED_BLUE_AS_ATTENTION
+    err = write_int(BLUE_LED_FILE, (blue != 0) ? 255 : 0);
+#endif
+
+    return err;
 }
 
 static int
 set_light_attention(struct light_device_t* dev,
         struct light_state_t const* state)
 {
-    return 0;
+    int err = 0;
+#ifdef LED_BLUE_AS_ATTENTION
+    err = write_int(BLUE_LED_FILE, (state->color != 0) ? 255 : 0);
+#endif
+    return err;
 }
 
 
@@ -199,18 +229,18 @@ static int open_lights(const struct hw_module_t* module, char const* name,
 
     struct light_context_t *dev = (struct light_context_t *)malloc(sizeof(struct light_context_t));
     memset(dev, 0, sizeof(struct light_context_t));
-	
+
     LOGD("light set back linghts!name = %s\n",name);
-    
-	if(0 == strcmp(LIGHT_ID_BACKLIGHT, name))
+
+    if (0 == strcmp(LIGHT_ID_BACKLIGHT, name))
     {
         dev->fd = open("/dev/disp", O_RDONLY);
         if (dev->fd < 0)
         {
             LOGE("Failed to open display device dev->fd = %x\n",dev->fd);
-        }       
+        }
     }
-    
+
     dev->device.common.tag = HARDWARE_DEVICE_TAG;
     dev->device.common.version = 0;
     dev->device.common.module = (struct hw_module_t*)module;
@@ -218,7 +248,7 @@ static int open_lights(const struct hw_module_t* module, char const* name,
     dev->device.set_light = set_light;
 
     *device = (struct hw_device_t*)dev;
-    
+
     return 0;
 
 error:
@@ -240,6 +270,6 @@ const struct hw_module_t HAL_MODULE_INFO_SYM = {
     .version_minor = 0,
     .id = LIGHTS_HARDWARE_MODULE_ID,
     .name = "SoftWinner lights Module",
-    .author = "SoftWinner.",
+    .author = "SoftWinner, Epsylon3",
     .methods = &lights_module_methods,
 };
