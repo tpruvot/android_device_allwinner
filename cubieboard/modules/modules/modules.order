@@ -1,0 +1,14 @@
+kernel/drivers/gpio/gpio-sunxi.ko
+kernel/drivers/video/sunxi/disp/disp_ump.ko
+kernel/drivers/gpu/mali/ump/ump.ko
+kernel/drivers/gpu/mali/mali/mali.ko
+kernel/drivers/misc/sunxi-dbgreg.ko
+kernel/drivers/scsi/scsi_wait_scan.ko
+kernel/drivers/net/wireless/rtl8192cu/8192cu.ko
+kernel/drivers/media/common/tuners/tea5761.ko
+kernel/drivers/media/video/sun4i_csi/device/gt2005.ko
+kernel/drivers/media/video/sun4i_csi/device/gc0308.ko
+kernel/drivers/media/video/sun4i_csi/device/hi253.ko
+kernel/drivers/media/video/videobuf-core.ko
+kernel/drivers/media/video/videobuf-dma-contig.ko
+kernel/drivers/media/video/sun4i_csi/csi0/sun4i_csi0.ko
