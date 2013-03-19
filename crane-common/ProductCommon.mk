@@ -11,6 +11,7 @@ PRODUCT_PACKAGES += \
 	display.sun4i \
 	lights.sun4i \
 	gps.sun4i \
+	audio.primary.sun4i \
 	make_ext4fs \
 	libjni_pinyinime
 		
