@@ -24,16 +24,18 @@ PRODUCT_PACKAGES += \
 	libcedarxosal \
 	libcedarxsftdemux \
 	libcedarv \
-    libcedarv_base \
-    libcedarv_adapter \
-    libve \
+	libcedarv_base \
+	libcedarv_adapter \
+	libve \
 	libaw_audio \
 	libaw_audioa \
 	libswdrm \
 	libthirdpartstream \
 	libcedarxsftstream \
+	libstagefright_rtsp \
 	libstagefright_soft_cedar_h264dec \
 	libjni_mosaic \
+	setrecovery \
 	u3gmonitor \
 	chat \
 	TvdVideo \

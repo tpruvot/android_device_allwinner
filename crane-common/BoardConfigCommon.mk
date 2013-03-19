@@ -43,3 +43,5 @@ TARGET_HARDWARE_INCLUDE := $(TOP)/device/allwinner/common/hardware/include
 TARGET_KERNEL_SOURCE := kernel/allwinner/common
 TARGET_KERNEL_CONFIG := cubieboard_defconfig
 
+# handle reboot modes (adb reboot)
+TARGET_RECOVERY_PRE_COMMAND := "setrecovery"
