@@ -1,0 +1,5 @@
+# override some shell commands
+
+alias mount='busybox mount'
+alias dmesg='busybox dmesg'
+

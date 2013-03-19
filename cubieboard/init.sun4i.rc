@@ -42,9 +42,23 @@ on fs
 	# debugfs (linked to /d)
 	mount debugfs debugfs /sys/kernel/debug
 
+on post-fs-data
+	mkdir /data/local/tmp 0777 system shell
+	export HISTFILE /data/local/tmp/.ash_history
+	export HISTFILESIZE 1000
+	export ENV /etc/profile
+
 on boot
 	insmod /system/lib/modules/ump.ko
 	insmod /system/lib/modules/mali.ko
+
+# Bluetooth services.
+service hciattach /system/bin/hciattach -n -t 10 /dev/ttyS1 csr 115200 flow
+	class main
+	user bluetooth
+	group bluetooth net_bt_admin
+	disabled
+	oneshot
 
 # PAN, Bluetooth ReverseTether Dhcp service
 service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL

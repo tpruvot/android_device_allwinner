@@ -111,7 +111,8 @@ PRODUCT_PACKAGES += \
 
 #premission feature
 PRODUCT_COPY_FILES += \
-	device/allwinner/crane-common/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml \
+    device/allwinner/crane-common/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml \
+    device/allwinner/crane-common/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
     frameworks/base/data/etc/android.hardware.location.xml:system/etc/permissions/android.hardware.location.xml \
     frameworks/base/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
     frameworks/base/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \

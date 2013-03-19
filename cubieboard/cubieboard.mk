@@ -40,6 +40,7 @@ PRODUCT_COPY_FILES += \
 	$(call find-copy-subdir-files,*,$(LOCAL_PATH)/googleservice,system/app)
 
 PRODUCT_COPY_FILES += \
+	device/allwinner/cubieboard/custom/profile:system/etc/profile \
 	device/allwinner/cubieboard/vold.fstab:system/etc/vold.fstab
 
 PRODUCT_PACKAGES += \
