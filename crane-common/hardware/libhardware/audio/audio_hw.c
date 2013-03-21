@@ -58,36 +58,43 @@ typedef enum PA_OPT
 
 /* Mixer control names */
 #define MIXER_MASTER_PLAYBACK_VOLUME        "Master Playback Volume"
-#define MIXER_PLAYBACK_PAMUTE_SWITCH        "Playback Switch" //"Playback PAMUTE SWITCH"
-#define MIXER_PLAYBACK_MIXPAS               "Playback MIXPAS"
-#define MIXER_PLAYBACK_DACPAS               "Playback DACPAS"
-#define MIXER_MIC_OUTPUT_MIX                "Mic Output Mix"
+#define MIXER_PLAYBACK_SWITCH               "Playback Switch"
+#define MIXER_CAPTURE_VOLUME                "Capture Volume"
+#define MIXER_FM_VOLUME                     "Fm Volume"
+#define MIXER_MIC_INPUT_MUX                 "Mic Input Mux"
 #define MIXER_LDAC_RIGHT_MIXER              "Ldac Right Mixer"
 #define MIXER_RDAC_RIGHT_MIXER              "Rdac Right Mixer"
 #define MIXER_LDAC_LEFT_MIXER               "Ldac Left Mixer"
 #define MIXER_FMR_SWITCH                    "FmR Switch"
 #define MIXER_FML_SWITCH                    "FmL Switch"
+#define MIXER_MIC_LEFT_VOLUME               "MicL Volume"
+#define MIXER_MIC_RIGHT_VOLUME              "MicR Volume"
 #define MIXER_LINER_SWITCH                  "LineR Switch"
 #define MIXER_LINEL_SWITCH                  "LineL Switch"
-#define MIXER_MIC_OUTPUT_VOLUME             "MIC output volume"
-#define MIXER_FM_OUTPUT_VOLUME              "Fm output Volume"
-#define MIXER_LINE_OUTPUT_VOLUME            "Line output Volume"
-#define MIXER_MIX_ENABLE                    "MIX Enable"
-#define MIXER_DACALEN_ENABLE                "DACALEN Enable"
-#define MIXER_DACAREN_ENABLE                "DACAREN Enable"
-#define MIXER_PA_ENABLE                     "PA Enable"
-#define MIXER_MIC1OUTN_ENABLE               "Mic1outn Enable"
-#define MIXER_LINEIN_APM_VOLUME             "LINEIN APM Volume"
-#define MIXER_LINE_IN_R_FUNCTION_DEFINE     "Line-in-r function define"
-#define MIXER_ADC_INPUT_SOURCE              "ADC Input source"
-#define MIXER_CAPTURE_VOLUME                "Capture Volume"
-#define MIXER_MIC2_GAIN_VOLUME              "Mic2 gain Volume"
-#define MIXER_MIC1_GAIN_VOLUME              "Mic1 gain Volume"
-#define MIXER_VMIC_ENABLE                   "VMic enable"
-#define MIXER_MIC2_AMPLIFIER_ENABLE         "Mic2 amplifier enable"
-#define MIXER_MIC1_AMPLIFIER_ENABLE         "Mic1 amplifier enable"
-#define MIXER_ADCL_ENABLE                   "ADCL enable"
-#define MIXER_ADCR_ENABLE                   "ADCR enable"
+#define MIXER_LINE_VOLUME                   "Line Volume"
+#define MIXER_MIX_ENABLE                    "Mic Input Mux"
+#define MIXER_ADC_INPUT_MUX                 "ADC Input Mux"
+
+/*
+ check sound/soc/sun4i/sun4i-codec.c for names :
+
+        CODEC_SINGLE("Master Playback Volume", SUN4I_DAC_ACTL,0,0x3f,0),
+        CODEC_SINGLE("Playback Switch", SUN4I_DAC_ACTL,6,1,0),
+        CODEC_SINGLE("Capture Volume",SUN4I_ADC_ACTL,20,7,0),
+        CODEC_SINGLE("Fm Volume",SUN4I_DAC_ACTL,23,7,0),
+        CODEC_SINGLE("Line Volume",SUN4I_DAC_ACTL,26,1,0),
+        CODEC_SINGLE("MicL Volume",SUN4I_ADC_ACTL,25,3,0),
+        CODEC_SINGLE("MicR Volume",SUN4I_ADC_ACTL,23,3,0),
+        CODEC_SINGLE("FmL Switch",SUN4I_DAC_ACTL,17,1,0),
+        CODEC_SINGLE("FmR Switch",SUN4I_DAC_ACTL,16,1,0),
+        CODEC_SINGLE("LineL Switch",SUN4I_DAC_ACTL,19,1,0),
+        CODEC_SINGLE("LineR Switch",SUN4I_DAC_ACTL,18,1,0),
+        CODEC_SINGLE("Ldac Left Mixer",SUN4I_DAC_ACTL,15,1,0),
+        CODEC_SINGLE("Rdac Right Mixer",SUN4I_DAC_ACTL,14,1,0),
+        CODEC_SINGLE("Ldac Right Mixer",SUN4I_DAC_ACTL,13,1,0),
+        CODEC_SINGLE("Mic Input Mux",SUN4I_DAC_ACTL,9,15,0),
+        CODEC_SINGLE("ADC Input Mux",SUN4I_ADC_ACTL,17,7,0),
+*/
 
 /* ALSA cards for A1X */
 #define CARD_A1X_CODEC      0
@@ -167,41 +174,6 @@ struct route_setting
 
 /* These are values that never change */
 struct route_setting defaults[] = {
-    // open dacpas
-    {
-        .ctl_name = MIXER_PLAYBACK_DACPAS,
-        .intval = 1,
-    },
-    {
-        .ctl_name = MIXER_PLAYBACK_PAMUTE_SWITCH,
-        .intval = 0,
-    },
-    // close capture
-    {
-        .ctl_name = MIXER_MIC2_AMPLIFIER_ENABLE,
-        .intval = 0,
-    },
-    {
-        .ctl_name = MIXER_ADCL_ENABLE,
-        .intval = 0,
-    },
-    {
-        .ctl_name = MIXER_ADCR_ENABLE,
-        .intval = 0,
-    },
-    {
-        .ctl_name = MIXER_MIC1_GAIN_VOLUME,
-        .intval = 0,
-    },
-    // to do ......
-    {
-        .ctl_name = MIXER_VMIC_ENABLE,          // for ear phone dectect
-        .intval = 1,
-    },
-    {
-        .ctl_name = MIXER_MIC1_AMPLIFIER_ENABLE,
-        .intval = 1,
-    },
     {
         .ctl_name = NULL,
     },
@@ -213,10 +185,6 @@ struct route_setting line_in_routing[] = {
         .intval = 1,
     },
     {
-        .ctl_name = MIXER_LINE_IN_R_FUNCTION_DEFINE,
-        .intval = 1,
-    },
-    {
         .ctl_name = MIXER_LINEL_SWITCH,
         .intval = 1,
     },
@@ -225,22 +193,14 @@ struct route_setting line_in_routing[] = {
         .intval = 1,
     },
     {
-        .ctl_name = MIXER_PLAYBACK_MIXPAS,
-        .intval = 1,
-    },
-    {
-        .ctl_name = MIXER_MIC1_GAIN_VOLUME,
-        .intval = 0,
-    },
-    {
         .ctl_name = NULL,
     },
 };
 
 struct route_setting line_in_rec_routing[] = {
     {
-        .ctl_name = MIXER_ADC_INPUT_SOURCE,
-        .intval = 7,
+        .ctl_name = MIXER_ADC_INPUT_MUX,
+        .intval = 1,
     },
     {
         .ctl_name = NULL,
@@ -249,26 +209,9 @@ struct route_setting line_in_rec_routing[] = {
 
 struct route_setting mic1_rec_routing[] = {
     {
-        .ctl_name = MIXER_ADC_INPUT_SOURCE,
-        .intval = 2,    // mic1: 2, mic2: 3
-    },
-/*  {
-        .ctl_name = MIXER_MIC1_AMPLIFIER_ENABLE,
-        .intval = 1,
-    },*/
-    {
-        .ctl_name = MIXER_ADCL_ENABLE,
+        .ctl_name = MIXER_MIC_INPUT_MUX,
         .intval = 1,
     },
-    {
-        .ctl_name = MIXER_ADCR_ENABLE,
-        .intval = 1,
-    },
-/*  {
-        .ctl_name = MIXER_VMIC_ENABLE,
-        .intval = 1,
-    },
-*/
     {
         .ctl_name = NULL,
     },
@@ -276,22 +219,9 @@ struct route_setting mic1_rec_routing[] = {
 
 struct route_setting mic1_up_routing[] = {
     {
-        .ctl_name = MIXER_ADC_INPUT_SOURCE,
-        .intval = 2,    // mic1: 2, mic2: 3
-    },
-/*  {
-        .ctl_name = MIXER_MIC1_AMPLIFIER_ENABLE,
-        .intval = 1,
-    },*/
-    {
-        .ctl_name = MIXER_MIC1OUTN_ENABLE,
+        .ctl_name = MIXER_MIC_INPUT_MUX,
         .intval = 1,
     },
-/*  {
-        .ctl_name = MIXER_VMIC_ENABLE,
-        .intval = 1,
-    },
-*/
     {
         .ctl_name = NULL,
     },
@@ -299,11 +229,9 @@ struct route_setting mic1_up_routing[] = {
 
 struct mixer_ctls
 {
-    struct mixer_ctl *master_playback_volume;       //
-    struct mixer_ctl *playback_pamute_switch;       // do not use in hal, or noise will happen
-    struct mixer_ctl *playback_mixpas;
-    struct mixer_ctl *playback_dacpas;
-    struct mixer_ctl *mic_output_mix;
+    struct mixer_ctl *master_playback_volume;
+    struct mixer_ctl *playback_switch;
+    struct mixer_ctl *mic_input_mux;
     struct mixer_ctl *ldac_right_mixer;             // do not use
     struct mixer_ctl *rdac_right_mixer;             // do not use
     struct mixer_ctl *ldac_left_mixer;              // do not use
@@ -311,25 +239,12 @@ struct mixer_ctls
     struct mixer_ctl *fml_switch;                   // do not use tmp
     struct mixer_ctl *liner_switch;
     struct mixer_ctl *linel_switch;
-    struct mixer_ctl *mic_output_volume;
-    struct mixer_ctl *fm_output_volume;
-    struct mixer_ctl *line_output_volume;
+    struct mixer_ctl *mic_left_volume;
+    struct mixer_ctl *mic_right_volume;
+    struct mixer_ctl *fm_volume;
+    struct mixer_ctl *line_volume;
     struct mixer_ctl *mix_enable;
-    struct mixer_ctl *dacalen_enable;
-    struct mixer_ctl *dacaren_enable;
-    struct mixer_ctl *pa_enable;
-    struct mixer_ctl *mic1outn_enable;
-    struct mixer_ctl *linein_pam_volume;
-    struct mixer_ctl *line_in_r_function_define;
-    struct mixer_ctl *adc_input_source;
     struct mixer_ctl *capture_volume;
-    struct mixer_ctl *mic2_gain_volume;
-    struct mixer_ctl *mic1_gain_volume;
-    struct mixer_ctl *vmic_enable;
-    struct mixer_ctl *mic2_amplifier_enable;
-    struct mixer_ctl *mic1_amplifier_enable;
-    struct mixer_ctl *adcl_enable;
-    struct mixer_ctl *adcr_enable;
 };
 
 #define MAX_AUDIO_DEVICES   16
@@ -355,12 +270,12 @@ struct pcm_buf_manager
 {
     pthread_mutex_t lock;               /* see note below on mutex acquisition order */
     bool            BufExist;
-    unsigned char   *BufStart;         //buffer首地址
-    int             BufTotalLen;       //总长度
-    unsigned char   *BufReadPtr;       //正在读的指针
-    int             DataLen;           //有效数据长度
-    unsigned char   *BufWritPtr;       //正在写的指针
-    int             BufValideLen;       //空余长度
+    unsigned char   *BufStart;
+    int             BufTotalLen;
+    unsigned char   *BufReadPtr;
+    int             DataLen;
+    unsigned char   *BufWritPtr;
+    int             BufValideLen;
     int             SampleRate;
     int             Channel;
 };
@@ -1309,7 +1224,7 @@ static int start_call(struct sunxi_audio_device *adev)
 
     set_route_by_array(adev->mixer, mic1_up_routing, 1);
     set_route_by_array(adev->mixer, line_in_routing, 1);
-    mixer_ctl_set_value(adev->mixer_ctls.playback_pamute_switch, 0, 1);     // in call mode must switch pa unmute
+    mixer_ctl_set_value(adev->mixer_ctls.playback_switch, 0, 1);     // in call mode must switch pa unmute
 
     ril_set_call_volume(0, 1);
 
@@ -1320,7 +1235,7 @@ static void end_call(struct sunxi_audio_device *adev)
 {
     F_LOG;
 
-    mixer_ctl_set_value(adev->mixer_ctls.playback_pamute_switch, 0, 0);
+    mixer_ctl_set_value(adev->mixer_ctls.playback_switch, 0, 0);
     usleep(5000);
     set_route_by_array(adev->mixer, mic1_up_routing, 0);
     set_route_by_array(adev->mixer, line_in_routing, 0);
@@ -3242,7 +3157,7 @@ static int adev_open_input_stream(struct audio_hw_device *dev, uint32_t devices,
     // default config
     memcpy(&in->config, &pcm_config_mm_in, sizeof(pcm_config_mm_in));
     in->config.channels = channel_count;
-        in->config.in_init_channels = channel_count;
+    in->config.in_init_channels = channel_count;
 
     LOGV("to malloc in-buffer: period_size: %d, frame_size: %d",
         in->config.period_size, audio_stream_frame_size(&in->stream.common));
@@ -3449,227 +3364,121 @@ static int adev_open(const hw_module_t* module, const char* name,
     adev->mixer_ctls.master_playback_volume = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_MASTER_PLAYBACK_VOLUME);
     if (!adev->mixer_ctls.master_playback_volume) {
-            LOGE("Unable to find '%s' mixer control",MIXER_MASTER_PLAYBACK_VOLUME);
-            goto error_out;
+        LOGE("Unable to find '%s' mixer control",MIXER_MASTER_PLAYBACK_VOLUME);
+        goto error_out;
     }
 
-    adev->mixer_ctls.playback_pamute_switch = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_PLAYBACK_PAMUTE_SWITCH);
-    if (!adev->mixer_ctls.playback_pamute_switch) {
-            LOGE("Unable to find '%s' mixer control",MIXER_PLAYBACK_PAMUTE_SWITCH);
-            goto error_out;
+    adev->mixer_ctls.playback_switch = mixer_get_ctl_by_name(adev->mixer,
+                                       MIXER_PLAYBACK_SWITCH);
+    if (!adev->mixer_ctls.playback_switch) {
+        LOGE("Unable to find '%s' mixer control",MIXER_PLAYBACK_SWITCH);
+        goto error_out;
     }
 
-    adev->mixer_ctls.playback_mixpas = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_PLAYBACK_MIXPAS);
-    if (!adev->mixer_ctls.playback_mixpas) {
-            LOGE("Unable to find '%s' mixer control",MIXER_PLAYBACK_MIXPAS);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.playback_dacpas = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_PLAYBACK_DACPAS);
-    if (!adev->mixer_ctls.playback_dacpas) {
-            LOGE("Unable to find '%s' mixer control",MIXER_PLAYBACK_DACPAS);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.mic_output_mix = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_MIC_OUTPUT_MIX);
-    if (!adev->mixer_ctls.mic_output_mix) {
-            LOGE("Unable to find '%s' mixer control",MIXER_MIC_OUTPUT_MIX);
-            goto error_out;
+    adev->mixer_ctls.mic_input_mux = mixer_get_ctl_by_name(adev->mixer,
+                                       MIXER_MIC_INPUT_MUX);
+    if (!adev->mixer_ctls.mic_input_mux) {
+        LOGW("Unable to find '%s' mixer control",MIXER_MIC_INPUT_MUX);
+//      goto error_out;
     }
 
     adev->mixer_ctls.ldac_right_mixer = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_LDAC_RIGHT_MIXER);
     if (!adev->mixer_ctls.ldac_right_mixer) {
-            LOGE("Unable to find '%s' mixer control",MIXER_LDAC_RIGHT_MIXER);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_LDAC_RIGHT_MIXER);
+//      goto error_out;
     }
 
     adev->mixer_ctls.rdac_right_mixer = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_RDAC_RIGHT_MIXER);
     if (!adev->mixer_ctls.rdac_right_mixer) {
-            LOGE("Unable to find '%s' mixer control",MIXER_RDAC_RIGHT_MIXER);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_RDAC_RIGHT_MIXER);
+//      goto error_out;
     }
 
     adev->mixer_ctls.rdac_right_mixer = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_RDAC_RIGHT_MIXER);
     if (!adev->mixer_ctls.rdac_right_mixer) {
-            LOGE("Unable to find '%s' mixer control",MIXER_RDAC_RIGHT_MIXER);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_RDAC_RIGHT_MIXER);
+//      goto error_out;
     }
 
     adev->mixer_ctls.ldac_left_mixer = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_LDAC_LEFT_MIXER);
     if (!adev->mixer_ctls.ldac_left_mixer) {
-            LOGE("Unable to find '%s' mixer control",MIXER_LDAC_LEFT_MIXER);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_LDAC_LEFT_MIXER);
+//      goto error_out;
     }
 
     adev->mixer_ctls.fmr_switch = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_FMR_SWITCH);
     if (!adev->mixer_ctls.fmr_switch) {
-            LOGE("Unable to find '%s' mixer control",MIXER_FMR_SWITCH);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_FMR_SWITCH);
+//      goto error_out;
     }
 
     adev->mixer_ctls.fml_switch = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_FML_SWITCH);
     if (!adev->mixer_ctls.fml_switch) {
-            LOGE("Unable to find '%s' mixer control",MIXER_FML_SWITCH);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_FML_SWITCH);
+//      goto error_out;
     }
 
     adev->mixer_ctls.liner_switch = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_LINER_SWITCH);
     if (!adev->mixer_ctls.liner_switch) {
-            LOGE("Unable to find '%s' mixer control",MIXER_LINER_SWITCH);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_LINER_SWITCH);
+//      goto error_out;
     }
 
     adev->mixer_ctls.linel_switch = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_LINEL_SWITCH);
     if (!adev->mixer_ctls.linel_switch) {
-            LOGE("Unable to find '%s' mixer control",MIXER_LINEL_SWITCH);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_LINEL_SWITCH);
+//      goto error_out;
     }
 
-    adev->mixer_ctls.mic_output_volume = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_MIC_OUTPUT_VOLUME);
-    if (!adev->mixer_ctls.mic_output_volume) {
-            LOGE("Unable to find '%s' mixer control",MIXER_MIC_OUTPUT_VOLUME);
-            goto error_out;
+    adev->mixer_ctls.mic_left_volume = mixer_get_ctl_by_name(adev->mixer,
+                                       MIXER_MIC_LEFT_VOLUME);
+    if (!adev->mixer_ctls.mic_left_volume) {
+        LOGW("Unable to find '%s' mixer control",MIXER_MIC_LEFT_VOLUME);
+//      goto error_out;
     }
 
-    adev->mixer_ctls.fm_output_volume = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_FM_OUTPUT_VOLUME);
-    if (!adev->mixer_ctls.fm_output_volume) {
-            LOGE("Unable to find '%s' mixer control",MIXER_FM_OUTPUT_VOLUME);
-            goto error_out;
+    adev->mixer_ctls.mic_right_volume = mixer_get_ctl_by_name(adev->mixer,
+                                       MIXER_MIC_RIGHT_VOLUME);
+    if (!adev->mixer_ctls.mic_right_volume) {
+        LOGW("Unable to find '%s' mixer control",MIXER_MIC_RIGHT_VOLUME);
+//      goto error_out;
     }
 
-    adev->mixer_ctls.line_output_volume = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_LINE_OUTPUT_VOLUME);
-    if (!adev->mixer_ctls.line_output_volume) {
-            LOGE("Unable to find '%s' mixer control",MIXER_LINE_OUTPUT_VOLUME);
-            goto error_out;
+    adev->mixer_ctls.fm_volume = mixer_get_ctl_by_name(adev->mixer,
+                                       MIXER_FM_VOLUME);
+    if (!adev->mixer_ctls.fm_volume) {
+        LOGW("Unable to find '%s' mixer control",MIXER_FM_VOLUME);
+//      goto error_out;
+    }
+
+    adev->mixer_ctls.line_volume = mixer_get_ctl_by_name(adev->mixer,
+                                       MIXER_LINE_VOLUME);
+    if (!adev->mixer_ctls.line_volume) {
+        LOGW("Unable to find '%s' mixer control",MIXER_LINE_VOLUME);
+//      goto error_out;
     }
 
     adev->mixer_ctls.mix_enable = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_MIX_ENABLE);
     if (!adev->mixer_ctls.mix_enable) {
-            LOGE("Unable to find '%s' mixer control",MIXER_MIX_ENABLE);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.dacalen_enable = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_DACALEN_ENABLE);
-    if (!adev->mixer_ctls.dacalen_enable) {
-            LOGE("Unable to find '%s' mixer control",MIXER_DACALEN_ENABLE);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.dacaren_enable = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_DACAREN_ENABLE);
-    if (!adev->mixer_ctls.dacaren_enable) {
-            LOGE("Unable to find '%s' mixer control",MIXER_DACAREN_ENABLE);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.pa_enable = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_PA_ENABLE);
-    if (!adev->mixer_ctls.pa_enable) {
-            LOGE("Unable to find '%s' mixer control",MIXER_PA_ENABLE);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.mic1outn_enable = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_MIC1OUTN_ENABLE);
-    if (!adev->mixer_ctls.mic1outn_enable) {
-            LOGE("Unable to find '%s' mixer control",MIXER_MIC1OUTN_ENABLE);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.linein_pam_volume = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_LINEIN_APM_VOLUME);
-    if (!adev->mixer_ctls.linein_pam_volume) {
-            LOGE("Unable to find '%s' mixer control",MIXER_LINEIN_APM_VOLUME);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.line_in_r_function_define = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_LINE_IN_R_FUNCTION_DEFINE);
-    if (!adev->mixer_ctls.line_in_r_function_define) {
-            LOGE("Unable to find '%s' mixer control",MIXER_LINE_IN_R_FUNCTION_DEFINE);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.adc_input_source = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_ADC_INPUT_SOURCE);
-    if (!adev->mixer_ctls.adc_input_source) {
-            LOGE("Unable to find '%s' mixer control",MIXER_ADC_INPUT_SOURCE);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_MIX_ENABLE);
+//      goto error_out;
     }
 
     adev->mixer_ctls.capture_volume = mixer_get_ctl_by_name(adev->mixer,
                                        MIXER_CAPTURE_VOLUME);
     if (!adev->mixer_ctls.capture_volume) {
-            LOGE("Unable to find '%s' mixer control",MIXER_CAPTURE_VOLUME);
-            goto error_out;
+        LOGW("Unable to find '%s' mixer control",MIXER_CAPTURE_VOLUME);
+//      goto error_out;
     }
-
-    adev->mixer_ctls.mic2_gain_volume = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_MIC2_GAIN_VOLUME);
-    if (!adev->mixer_ctls.mic2_gain_volume) {
-            LOGE("Unable to find '%s' mixer control",MIXER_MIC2_GAIN_VOLUME);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.mic1_gain_volume = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_MIC1_GAIN_VOLUME);
-    if (!adev->mixer_ctls.mic1_gain_volume) {
-            LOGE("Unable to find '%s' mixer control",MIXER_MIC1_GAIN_VOLUME);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.vmic_enable = mixer_get_ctl_by_name(adev->mixer,
-                                           MIXER_VMIC_ENABLE);
-    if (!adev->mixer_ctls.vmic_enable) {
-            LOGE("Unable to find '%s' mixer control",MIXER_VMIC_ENABLE);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.mic2_amplifier_enable = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_MIC2_AMPLIFIER_ENABLE);
-    if (!adev->mixer_ctls.mic2_amplifier_enable) {
-            LOGE("Unable to find '%s' mixer control",MIXER_MIC2_AMPLIFIER_ENABLE);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.mic1_amplifier_enable = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_MIC1_AMPLIFIER_ENABLE);
-    if (!adev->mixer_ctls.mic1_amplifier_enable) {
-            LOGE("Unable to find '%s' mixer control",MIXER_MIC1_AMPLIFIER_ENABLE);
-            goto error_out;
-    }
-
-    adev->mixer_ctls.adcl_enable = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_ADCL_ENABLE);
-    if (!adev->mixer_ctls.adcl_enable) {
-        LOGE("Unable to find '%s' mixer control",MIXER_ADCL_ENABLE);
-        goto error_out;
-    }
-
-    adev->mixer_ctls.adcr_enable = mixer_get_ctl_by_name(adev->mixer,
-                                       MIXER_ADCR_ENABLE);
-    if (!adev->mixer_ctls.adcr_enable) {
-        LOGE("Unable to find '%s' mixer control",MIXER_ADCR_ENABLE);
-        goto error_out;
-    }
-
 
     /* Set the default route before the PCM stream is opened */
     pthread_mutex_lock(&adev->lock);
@@ -3690,7 +3499,6 @@ static int adev_open(const hw_module_t* module, const char* name,
 
     set_route_by_array(adev->mixer, defaults, 1);
     adev->mode = AUDIO_MODE_NORMAL;
-//    adev->devices = AUDIO_DEVICE_OUT_SPEAKER | AUDIO_DEVICE_IN_BUILTIN_MIC;       // init in function init_audio_devices_active
     select_output_device(adev);
 
     adev->pcm_modem_dl = NULL;
@@ -3711,19 +3519,19 @@ error_out:
 #if !LOG_NDEBUG
     /* To aid debugging, dump all mixer controls */
     {
-            unsigned int cnt = mixer_get_num_ctls(adev->mixer);
-            unsigned int i;
-            LOGD("Mixer dump: Nr of controls: %d",cnt);
-            for (i = 0; i < cnt; i++) {
-                    struct mixer_ctl* x = mixer_get_ctl(adev->mixer,i);
-                    if (x != NULL) {
-                            char name[128];
-                            const char* type;
-                            mixer_ctl_get_name(x,name,sizeof(name));
-                            type = mixer_ctl_get_type_string(x);
-                            LOGD("#%d: '%s' [%s]",i,name,type);
-                    }
+        unsigned int cnt = mixer_get_num_ctls(adev->mixer);
+        unsigned int i;
+        LOGD("Mixer dump: Nr of controls: %d",cnt);
+        for (i = 0; i < cnt; i++) {
+            struct mixer_ctl* x = mixer_get_ctl(adev->mixer,i);
+            if (x != NULL) {
+                char name[128];
+                const char* type;
+                mixer_ctl_get_name(x,name,sizeof(name));
+                type = mixer_ctl_get_type_string(x);
+                LOGD("#%d: '%s' [%s]",i,name,type);
             }
+        }
     }
 #endif
 
@@ -3742,8 +3550,8 @@ struct audio_module HAL_MODULE_INFO_SYM = {
         .version_major = 1,
         .version_minor = 0,
         .id = AUDIO_HARDWARE_MODULE_ID,
-        .name = "sunxi audio HW HAL",
-        .author = "xiaoshujun. aw",
+        .name = "sun4i audio HW HAL",
+        .author = "Epsylon3",
         .methods = &hal_module_methods,
     },
 };
